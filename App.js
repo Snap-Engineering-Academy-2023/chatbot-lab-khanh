@@ -15,7 +15,13 @@ export default function App() {
       question1: "What's the first name of Snap's CEO?",
       answer: "Evan",
       correct: "You are correct",
-      incorrect: "Nope!",
+      incorrect: "Nope! try again",
+    },
+    {
+      question1: "How do you spell the name of this chatbot creator?",
+      answer: "Khanh",
+      correct: "You are correct",
+      incorrect: "This is very dissapointing. Try again.",
     },
     {
       question1: "What 1 + 1?",
@@ -28,7 +34,7 @@ export default function App() {
       question1: "What's 2 + 2?",
       answer: "4",
       correct: "You are correct",
-      incorrect: "Nope!",
+      incorrect: "Nope! try again",
     }
     
   ]
@@ -63,10 +69,13 @@ export default function App() {
     ]);
   };
 
-  var index = 0;
-  var gameStarted = false;
+  //var index = 0;
+  const [index, setIndex] = useState(0);
+  //var gameStarted = false;
+  const [gameStarted, setGameStarted] = useState(false)
   const [output, setOutput] = useState("Ok let's play! Press any character to start")
-  var questionPrompted = false
+  //var questionPrompted = false
+  const [questionPrompted, setQuestionPrompted] = useState(false)
 
 
   const respondToUser = (userMessages) => {
@@ -78,7 +87,7 @@ export default function App() {
     {
       if(userMessages[0].text == "Yes") {
         addBotMessage(output)
-        gameStarted = true
+        setGameStarted(true)
       }
       else {
         addBotMessage("Please say 'yes' to start.")
@@ -91,38 +100,43 @@ export default function App() {
   };
 
   const askQuestions = (userMessages) => {
-    if(questionPrompted == false)
+    if(questionPrompted == false && index < 3)
     {
       addBotMessage(questions[index].question1)
-      questionPrompted = true
+      setQuestionPrompted(true)
     }
     else if(userMessages[0].text == questions[index].answer && index < 3)
     {
-      addBotMessage("Correct! Next Question! Say ok to start")
-      index = index + 1
-      questionPrompted = false
+      addBotMessage("Correct! Next Question! Press any character to continue")
+      setIndex(index+1)
+      console.log("index: " ,index)
+      setQuestionPrompted(false)
     }
-    else
+    else if(index < 3)
     {
-      addBotMessage("Wrong try again!")
+      addBotMessage(questions[index].incorrect)
     }
 
     if(index == 3)
     {
-      addBotMessage("You win!")
+      addBotMessage("You win! Do you want to play again?")
+      setIndex(0)
+      setGameStarted(false)
     }
   }
 
 
   const onSend = useCallback((messages = []) => {
     addNewMessage(messages);
-    setTimeout(() => respondToUser(messages), 1000);
   }, []);
 
   return (
     <GiftedChat
       messages={messages}
-      onSend={(messages) => onSend(messages)}
+      onSend={(messages) => {
+        onSend(messages)
+        setTimeout(() => respondToUser(messages), 1000);
+      }}
       user={{
         _id: 1,
         name: "Baker",
